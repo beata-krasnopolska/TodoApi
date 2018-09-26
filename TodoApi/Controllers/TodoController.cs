@@ -5,7 +5,7 @@ using TodoApi.Models;
 
 namespace TodoApi.Controllers
 {
-    [Route("api/todo")]
+    [Route("api/[controller]")]
     [ApiController]
     public class TodoController : ControllerBase
     {
@@ -21,7 +21,6 @@ namespace TodoApi.Controllers
                 _context.SaveChanges();
             }
         }
-
         [HttpGet]
         public ActionResult<List<TodoItem>> GetAll()
         {
@@ -37,6 +36,35 @@ namespace TodoApi.Controllers
                 return NotFound();
             }
             return item;
+        }
+
+        //Create Method
+
+        [HttpPost]
+        public IActionResult Create(TodoItem item)
+        {
+            _context.TodoItems.Add(item);
+            _context.SaveChanges();
+
+            return CreatedAtRoute("GetTodo", new { id = item.Id }, item);
+        }
+
+        // Update Method
+
+        [HttpPut("{id}")]
+        public IActionResult Update (long id, TodoItem item)
+        {
+            var todo = _context.TodoItems.Find(id);
+            if (todo == null)
+            {
+                return NotFound();
+            }
+            todo.IsComplete = item.IsComplete;
+            todo.Name = item.Name;
+
+            _context.TodoItems.Update(todo);
+            _context.SaveChanges();
+            return NoContent();
         }
     }
 }
